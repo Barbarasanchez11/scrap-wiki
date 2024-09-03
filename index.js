@@ -16,7 +16,7 @@ app.get('/', async (req, res) => {
             const html = response.data;
             const $ = cheerio.load(html);
             const tituloPrincipal = $('title').text();
-            
+        
             // Extraer los enlaces de raperos
             $('#mw-pages a').each((index, element) => {
                 const link = $(element).attr('href');
@@ -25,23 +25,28 @@ app.get('/', async (req, res) => {
                     links.push(link);
                 }
             });
-            
+        
             raperos.length = 0;
 
             // Para cada enlace, obtener la información del rapero
-            await Promise.all(links.map(async (link) => {
-                const raperoResponse = await axios.get(`${urlBase}${link}`);
-                const raperoPagina = cheerio.load(raperoResponse.data);
-                
-                const rapero = {
-                    titulo: raperoPagina('h1').text(),
-                    imagen: raperoPagina('.imagen img').attr('src'),
-                    parafos: raperoPagina('#mw-content-text').find('p').text(),
-                    url: link // Guardar el enlace completo
-                };
-                
-                raperos.push(rapero);
-            }));
+            for (const link of links) {
+                try {
+                    const raperoResponse = await axios.get(`${urlBase}${link}`);
+                    const raperoPagina = cheerio.load(raperoResponse.data);
+                    
+                    const rapero = {
+                        titulo: raperoPagina('h1').text(),
+                        imagen: raperoPagina('.imagen img').attr('src'),
+                        parrafos: raperoPagina('#mw-content-text').find('p').text(), // Cambiar 'parafos' a 'parrafos'
+                        url: link // Guardar el enlace completo
+                    };
+                    
+                    raperos.push(rapero);
+                } catch (error) {
+                    console.error(error);
+                    // Podrías considerar continuar si hay un error en la solicitud del rapero
+                }
+            }
             
             // Mostrar los raperos en la página principal
             res.send(`
@@ -72,14 +77,14 @@ app.get('/rapero*', async (req, res) => {
             const rapero = {
                 titulo: raperoPagina('h1').text(),
                 imagen: raperoPagina('.imagen img').attr('src'),
-                parafos: raperoPagina('#mw-content-text').find('p').text()
+                parrafos: raperoPagina('#mw-content-text').find('p').text() // Cambiar 'parafos' a 'parrafos'
             };
             
             // info rapero
             res.send(`
                 <h1>${rapero.titulo}</h1>
                 <p><img src="${rapero.imagen}" alt="${rapero.titulo}"/></p>
-                <p>${rapero.parafos}</p>
+                <p>${rapero.parrafos}</p> <!-- Cambiar 'parafos' a 'parrafos' -->
                 <a href="/">Volver a la lista de raperos</a>
             `);
         }
@@ -90,5 +95,5 @@ app.get('/rapero*', async (req, res) => {
 });
 
 app.listen(3000, () => {
-    console.log(`El servidor está escuahdno en http://localhost:3000`);
+    console.log(`El servidor está escuchando en http://localhost:3000`); // Corregir "escuahdno" a "escuchando"
 });
