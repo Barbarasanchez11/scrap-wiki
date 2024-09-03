@@ -8,7 +8,7 @@ const urlBase = 'https://es.wikipedia.org';
 const links = [];
 const raperos = []; 
 
-// Ruta inicial para listar raperos
+// lista de raperos
 app.get('/', async (req, res) => {
     try {
         const response = await axios.get(url);
@@ -26,7 +26,6 @@ app.get('/', async (req, res) => {
                 }
             });
             
-            // Limpiar el array de raperos para la siguiente construcción
             raperos.length = 0;
 
             // Para cada enlace, obtener la información del rapero
@@ -64,7 +63,7 @@ app.get('/', async (req, res) => {
 
 // Ruta para mostrar la información de un rapero específico
 app.get('/rapero*', async (req, res) => {
-    const link = req.originalUrl.replace('/rapero', '');
+    const link = req.originalUrl.replace('/rapero', ''); 
     try {
         const raperoResponse = await axios.get(`${urlBase}${link}`);
         if (raperoResponse.status === 200) {
