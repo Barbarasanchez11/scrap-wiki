@@ -37,8 +37,8 @@ app.get('/', async (req, res) => {
                     const rapero = {
                         titulo: raperoPagina('h1').text(),
                         imagen: raperoPagina('.imagen img').attr('src'),
-                        parrafos: raperoPagina('#mw-content-text').find('p').text(), // Cambiar 'parafos' a 'parrafos'
-                        url: link // Guardar el enlace completo
+                        parrafos: raperoPagina('#mw-content-text').find('p').text(), 
+                        url: link.replace('/wiki/', '') // Guardar el identificador del rapero sin el prefijo
                     };
                     
                     raperos.push(rapero);
@@ -54,7 +54,7 @@ app.get('/', async (req, res) => {
                 <ul>
                     ${raperos.map(rapero => `
                         <li>
-                            <a href="/rapero${rapero.url}">${rapero.titulo}</a>
+                            <a href="/rapero/${rapero.url}">${rapero.titulo}</a>
                         </li>
                     `).join('')}
                 </ul>
@@ -66,34 +66,23 @@ app.get('/', async (req, res) => {
     }
 });
 
-// Ruta para mostrar la información de un rapero específico
-app.get('/rapero*', async (req, res) => {
-    const link = req.originalUrl.replace('/rapero', ''); 
+// Ruta dinámica para mostrar información de cada músico de rap
+app.get('/rapero/:id', async (req, res) => { // Agregar ':id' para capturar la identificación del rapero
+    const musicoId = req.params.id; // Obtener el id capturado en la ruta
+    const musicoUrl = `${urlBase}/wiki/${musicoId}`; // Utilizar el formato correcto para la URL
+
     try {
-        const raperoResponse = await axios.get(`${urlBase}${link}`);
-        if (raperoResponse.status === 200) {
-            const raperoPagina = cheerio.load(raperoResponse.data);
-            
-            const rapero = {
-                titulo: raperoPagina('h1').text(),
-                imagen: raperoPagina('.imagen img').attr('src'),
-                parrafos: raperoPagina('#mw-content-text').find('p').text() // Cambiar 'parafos' a 'parrafos'
-            };
-            
-            // info rapero
-            res.send(`
-                <h1>${rapero.titulo}</h1>
-                <p><img src="${rapero.imagen}" alt="${rapero.titulo}"/></p>
-                <p>${rapero.parrafos}</p> <!-- Cambiar 'parafos' a 'parrafos' -->
-                <a href="/">Volver a la lista de raperos</a>
-            `);
+        const response = await axios.get(musicoUrl);
+        if (response.status === 200) {
+            const html = response.data;
+            res.send(html);
         }
     } catch (error) {
-        console.error(error);
-        res.status(404).send('Página no encontrada');
+        console.error('Error al acceder a la página del músico de rap:', error);
+        res.status(500).send('Hubo un error al acceder a la página del músico de rap.');
     }
 });
 
 app.listen(3000, () => {
-    console.log(`El servidor está escuchando en http://localhost:3000`); // Corregir "escuahdno" a "escuchando"
+    console.log('express está escuchando en el puerto http://localhost:3000');
 });
