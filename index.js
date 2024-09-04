@@ -66,20 +66,20 @@ app.get('/', async (req, res) => {
     }
 });
 
-// Ruta dinámica para mostrar información de cada músico de rap
-app.get('/rapero/:id', async (req, res) => { // Agregar ':id' para capturar la identificación del rapero
-    const musicoId = req.params.id; // Obtener el id capturado en la ruta
-    const musicoUrl = `${urlBase}/wiki/${musicoId}`; // Utilizar el formato correcto para la URL
+//Ruta dinámica raperos
+app.get('/rapero/:id', async (req, res) => { // Agregar ':id' 
+    const raperoId = req.params.id; // id capturado en la ruta
+    const raperoUrl = `${urlBase}/wiki/${raperoId}`; 
 
     try {
-        const response = await axios.get(musicoUrl);
+        const response = await axios.get(raperoUrl);
         if (response.status === 200) {
             const html = response.data;
             res.send(html);
         }
     } catch (error) {
-        console.error('Error al acceder a la página del músico de rap:', error);
-        res.status(500).send('Hubo un error al acceder a la página del músico de rap.');
+        console.error('Se produjo un error al acceder a la información.', error);
+        res.status(500).send('Se produjo un error al acceder a la información.');
     }
 });
 
